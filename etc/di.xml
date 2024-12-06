@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <virtualType name="IntegrationHelper\IntegrationVersionMagentoClient\ApiRequest\DefaultApiRequest"
+                 type="IntegrationHelper\IntegrationVersionMagentoClient\ApiRequest\BaseApiRequest">
+        <arguments>
+            <argument name="configProvider" xsi:type="object">IntegrationHelper\IntegrationVersionMagentoClient\Model\ConfigProvider</argument>
+            <argument name="tokenApiMethod" xsi:type="const">\IntegrationHelper\IntegrationVersionMagentoClient\Api\ConstraintsInterface::BASE_TOKEN_METHOD</argument>
+            <argument name="identitiesApiMethod" xsi:type="const">\IntegrationHelper\IntegrationVersionMagentoClient\Api\ConstraintsInterface::BASE_GET_IDENTITIES_METHOD</argument>
+            <argument name="latestHashApiMethod" xsi:type="const">\IntegrationHelper\IntegrationVersionMagentoClient\Api\ConstraintsInterface::BASE_GET_LATEST_HASH_METHOD</argument>
+            <argument name="type" xsi:type="string">default</argument>
+            <argument name="name" xsi:type="string">Default Api Request</argument>
+        </arguments>
+    </virtualType>
+
+
+    <virtualType name="IntegrationHelper\IntegrationVersionMagentoClient\Service\BaseIntegrationVersionManager"
+                 type="IntegrationHelper\IntegrationVersionMagentoClient\Service\IntegrationVersionManager"
+    >
+        <arguments>
+            <argument name="apiRequest" xsi:type="object">IntegrationHelper\IntegrationVersionMagentoClient\ApiRequest\DefaultApiRequest</argument>
+        </arguments>
+    </virtualType>
+
+
+    <type name="IntegrationHelper\BaseLogger\Logger\LoggerInitiator">
+        <arguments>
+            <argument name="loggerTypes" xsi:type="array">
+                <item name="integration_version_magento_crit" xsi:type="array">
+                    <item name="log_type" xsi:type="string">integration_version_magento_crit</item>
+                    <item name="filepath" xsi:type="string">/var/log/integration_version_magento_crit.log</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
+
+</config>

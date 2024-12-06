@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="integration_version">
+            <tab>integration_helper</tab>
+            <group id="settings" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Settings</label>
+                <group id="credentials" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Credentials</label>
+                    <field id="is_enabled" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Is Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    </field>
+                    <field id="api_url" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Api url</label>
+                        <validate>validate-no-empty</validate>
+                        <depends>
+                            <field id="is_enabled">1</field>
+                        </depends>
+                    </field>
+                    <field id="api_key" translate="label" type="text" sortOrder="12" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Api Key</label>
+                        <comment><![CDATA[Can be empty]]></comment>
+                        <depends>
+                            <field id="is_enabled">1</field>
+                        </depends>
+                    </field>
+                    <field id="api_secret_key" translate="label" type="text" sortOrder="14" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Api Password</label>
+                        <comment><![CDATA[Can be empty]]></comment>
+                        <depends>
+                            <field id="is_enabled">1</field>
+                        </depends>
+                    </field>
+                    <field id="api_token" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>API Token</label>
+                        <comment><![CDATA[Can be empty. Has high priority behind login and password]]></comment>
+                        <depends>
+                            <field id="is_enabled">1</field>
+                        </depends>
+                    </field>
+                </group>
+            </group>
+        </section>
+    </system>
+</config>
