@@ -146,7 +146,7 @@ abstract class AbstractApiRequest implements ApiRequestInterface
          ]
      ): Client
      {
-         if($this->clients[$type] ?? false) {
+         if($this->clients[$type] ?? true) {
              $token = $this->configProvider->getApiToken();
              $apiUrl = $this->configProvider->getApiUrl();
              if(!$apiUrl) {
@@ -223,7 +223,8 @@ abstract class AbstractApiRequest implements ApiRequestInterface
         $fullApiUrl = $this->getTrimmedUrl($this->configProvider->getApiUrl(), $apiUrlMethod);
         $response = $client->{strtoupper($httpMethod)}($fullApiUrl, $params);
 
-        return $response->getBody()->getContents();
+        $content = $response->getBody()->getContents();
+         return $content ? json_decode($content, true) : [];
      }
 
     /**
