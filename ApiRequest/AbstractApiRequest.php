@@ -221,7 +221,20 @@ abstract class AbstractApiRequest implements ApiRequestInterface
         $client = $this->initRequest($type, $headers);
 
         $fullApiUrl = $this->getTrimmedUrl($this->configProvider->getApiUrl(), $apiUrlMethod);
-        $response = $client->{strtoupper($httpMethod)}($fullApiUrl, $params);
+         $httpMethod = strtoupper($httpMethod);
+         $params = match($httpMethod) {
+             'POST' => [
+                 'json' => $params
+             ],
+             'PUT' => [
+                 'json' => [
+                     'data' => $params
+                 ]
+             ],
+             default => $params
+         };
+
+         $response = $client->{$httpMethod}($fullApiUrl, $params);
 
         $content = $response->getBody()->getContents();
          return $content ? json_decode($content, true) : [];
