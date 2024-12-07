@@ -58,7 +58,7 @@ class IntegrationVersionManager implements IntegrationVersionManagerInterface
         $item = $this->integrationVersionRepository->getItemBySource($source);
         $item->setStatus(\IntegrationHelper\IntegrationVersion\Model\IntegrationVersionInterface::STATUS_READY);
         $item->setHash($latestHashDataOutput->getHash(), $latestHashDataOutput->getHashDateTime());
-        $item->setUpdatedAtValue($latestHashDataOutput->getDatetime());
+        $item->setUpdatedAtValue($latestHashDataOutput->getHashDateTime());
         $this->integrationVersionRepository->updateItem($item);
     }
 }
