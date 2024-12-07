@@ -61,8 +61,8 @@ abstract class AbstractApiRequest implements ApiRequestInterface
                 $this->identitiesApiMethod
             );
 
+            if(!($data['identities'] ?? false)) break;
             yield $data;
-            break;
         }
     }
 
