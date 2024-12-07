@@ -40,12 +40,12 @@ abstract class AbstractApiRequest implements ApiRequestInterface
     /**
      * @param string $source
      * @param string $currentHash
-     * @param string $dateTime
+     * @param string $hashDateTime
      * @return iterable
      * @throws ApiTokenNotDefined
      * @throws ApiUrlNotDefined
      */
-    public function getIdentities(string $source, string $currentHash, string $dateTime): iterable
+    public function getIdentities(string $source, string $currentHash, string $hashDateTime): iterable
     {
         $page = 1;
         while(true) {
@@ -54,7 +54,7 @@ abstract class AbstractApiRequest implements ApiRequestInterface
                 [
                     'source' => $source,
                     'old_hash' => $currentHash ?: 'empty',
-                    'updated_at' => $dateTime,
+                    'hash_date_time' => $hashDateTime,
                     'page' => $page++,
                     'limit' => 10000
                 ],
@@ -103,7 +103,7 @@ abstract class AbstractApiRequest implements ApiRequestInterface
 
         return new LatestHashDataOutput(
             $data['hash'] ?? '',
-            $data['updated_at'] ?? '',
+            $data['hash_date_time'] ?? '',
             $data['message'] ?? '',
             $data['is_error'] ?? false
         );

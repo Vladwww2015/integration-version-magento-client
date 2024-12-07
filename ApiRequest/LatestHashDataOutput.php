@@ -6,7 +6,7 @@ class LatestHashDataOutput
 {
     public function __construct(
         protected string $hash,
-        protected string $datetime,
+        protected string $hashDateTime,
         protected string $message,
         protected bool $isError,
     ){}
@@ -16,9 +16,9 @@ class LatestHashDataOutput
         return $this->hash;
     }
 
-    public function getDatetime(): string
+    public function getHashDateTime(): string
     {
-        return $this->datetime;
+        return $this->hashDateTime;
     }
 
     public function getMessage(): string
