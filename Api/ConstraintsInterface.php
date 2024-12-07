@@ -12,4 +12,6 @@ interface ConstraintsInterface
     public const BASE_TOKEN_METHOD = 'api/v1/admin/login';
     public const BASE_GET_IDENTITIES_METHOD = 'api/v1/admin/integration-version/get-identities';
     public const BASE_GET_LATEST_HASH_METHOD = 'api/v1/admin/integration-version/get-latest-hash';
+
+    public const BASE_GET_DATA_BY_IDENTITIES_METHOD = 'api/v1/admin/integration-version/get-data-by-identities';
 }
