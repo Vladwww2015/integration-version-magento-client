@@ -26,7 +26,7 @@ public function __construct(
                     ->getIdentities(
                         $source,
                         $item->getHash(),
-                        $item->getUpdatedAtValue())
+                        $item->getHashDateTime())
                 as $items) {
                 $identities[] = //.... get identities 
             }
@@ -128,7 +128,7 @@ class RunImports
                     ->getIdentities(
                         $source,
                         $item->getHash(),
-                        $item->getUpdatedAtValue())
+                        $item->getHashDateTime())
                 as $items) {
                // $identities[] = //.... get identities 
             }
