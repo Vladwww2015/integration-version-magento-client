@@ -8,6 +8,7 @@
             <argument name="tokenApiMethod" xsi:type="const">\IntegrationHelper\IntegrationVersionMagentoClient\Api\ConstraintsInterface::BASE_TOKEN_METHOD</argument>
             <argument name="identitiesApiMethod" xsi:type="const">\IntegrationHelper\IntegrationVersionMagentoClient\Api\ConstraintsInterface::BASE_GET_IDENTITIES_METHOD</argument>
             <argument name="latestHashApiMethod" xsi:type="const">\IntegrationHelper\IntegrationVersionMagentoClient\Api\ConstraintsInterface::BASE_GET_LATEST_HASH_METHOD</argument>
+            <argument name="dataByIdentitiesMethod" xsi:type="const">\IntegrationHelper\IntegrationVersionMagentoClient\Api\ConstraintsInterface::BASE_GET_DATA_BY_IDENTITIES_METHOD</argument>
             <argument name="type" xsi:type="string">default</argument>
             <argument name="name" xsi:type="string">Default Api Request</argument>
         </arguments>

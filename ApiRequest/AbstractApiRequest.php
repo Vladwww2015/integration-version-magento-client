@@ -33,7 +33,8 @@ abstract class AbstractApiRequest implements ApiRequestInterface
         protected string $name,
         protected string $tokenApiMethod,
         protected string $latestHashApiMethod,
-        protected string $identitiesApiMethod
+        protected string $identitiesApiMethod,
+        protected string $dataByIdentitiesMethod
     ){}
 
     /**
@@ -52,7 +53,7 @@ abstract class AbstractApiRequest implements ApiRequestInterface
                 'identities',
                 [
                     'source' => $source,
-                    'old_hash' => $currentHash,
+                    'old_hash' => $currentHash ?: 'empty',
                     'updated_at' => $dateTime,
                     'page' => $page++,
                     'limit' => 10000
@@ -64,6 +65,25 @@ abstract class AbstractApiRequest implements ApiRequestInterface
             break;
         }
     }
+
+    /**
+     * @param string $source
+     * @param array $identities
+     * @param int $limit
+     * @return iterable
+     */
+    public function getDataByIdentities(string $source, array $identities, int $limit = 5000): iterable
+    {
+        return $this->_request(
+            'dataByIdentities',
+            [
+                'source' => $source,
+                'identities' => $identities
+            ],
+            $this->dataByIdentitiesMethod
+        );
+    }
+
 
     /**
      * @param string $source

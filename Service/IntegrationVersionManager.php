@@ -38,6 +38,11 @@ class IntegrationVersionManager implements IntegrationVersionManagerInterface
         return $this->apiRequest->getLatestHashData($source);
     }
 
+    public function getDataByIdentities(string $source, array $identities, int $limit = 5000): iterable
+    {
+        return $this->apiRequest->getDataByIdentities($source, $identities, $limit);
+    }
+
     /**
      * @param string $source
      * @param LatestHashDataOutput $latestHashDataOutput

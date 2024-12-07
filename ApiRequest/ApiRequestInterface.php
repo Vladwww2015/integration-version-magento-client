@@ -23,6 +23,14 @@ interface ApiRequestInterface
 
     /**
      * @param string $source
+     * @param array $identities
+     * @param int $limit
+     * @return iterable
+     */
+    public function getDataByIdentities(string $source, array $identities, int $limit = 5000): iterable;
+
+    /**
+     * @param string $source
      * @return LatestHashDataOutput
      */
     public function getLatestHashData(string $source): LatestHashDataOutput;
