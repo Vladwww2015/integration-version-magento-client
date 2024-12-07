@@ -26,7 +26,7 @@ class IntegrationVersionManager implements IntegrationVersionManagerInterface
      */
     public function getIdentities(string $source, string $currentHash, string $dateTime): iterable
     {
-        yield $this->apiRequest->getIdentities($source, $currentHash, $dateTime);
+        return $this->apiRequest->getIdentities($source, $currentHash, $dateTime);
     }
 
     /**

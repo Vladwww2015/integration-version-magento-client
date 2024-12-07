@@ -100,11 +100,9 @@ abstract class AbstractApiRequest implements ApiRequestInterface
             $data = $this->_request(
                 'token',
                 [
-                    'json' => [
-                        'email' => $apiKey,
-                        'password' => $apiSecretKey,
-                        'device_name' => 'PC'
-                    ]
+                    'email' => $apiKey,
+                    'password' => $apiSecretKey,
+                    'device_name' => 'PC'
                 ],
                 $this->tokenApiMethod
             );
@@ -220,7 +218,7 @@ abstract class AbstractApiRequest implements ApiRequestInterface
      {
         $client = $this->initRequest($type, $headers);
 
-        $fullApiUrl = $this->getTrimmedUrl($this->configProvider->getApiUrl(), $apiUrlMethod);
+         $fullApiUrl = $this->getTrimmedUrl($this->configProvider->getApiUrl(), $apiUrlMethod);
          $httpMethod = strtoupper($httpMethod);
          $params = match($httpMethod) {
              'POST' => [
@@ -233,10 +231,8 @@ abstract class AbstractApiRequest implements ApiRequestInterface
              ],
              default => $params
          };
-
          $response = $client->{$httpMethod}($fullApiUrl, $params);
-
-        $content = $response->getBody()->getContents();
+         $content = $response->getBody()->getContents();
          return $content ? json_decode($content, true) : [];
      }
 
