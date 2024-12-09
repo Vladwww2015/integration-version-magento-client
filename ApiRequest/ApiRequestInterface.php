@@ -19,7 +19,7 @@ interface ApiRequestInterface
     /**
      * @return iterable
      */
-    public function getIdentities(string $source, string $currentHash, string $dateTime): iterable;
+    public function getIdentities(string $source, string $currentHash, string $hashDateTime): iterable;
 
     /**
      * @param string $source
@@ -56,4 +56,11 @@ interface ApiRequestInterface
      * @return string
      */
     public function getIdentitiesApiMethod(): string;
+
+    /**
+     * @param string $source
+     * @param array $identitiesForCheck
+     * @return array
+     */
+    public function getDeletedIdentities(string $source, array $identitiesForCheck): array;
 }

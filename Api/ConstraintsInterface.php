@@ -14,4 +14,6 @@ interface ConstraintsInterface
     public const BASE_GET_LATEST_HASH_METHOD = 'api/v1/admin/integration-version/get-latest-hash';
 
     public const BASE_GET_DATA_BY_IDENTITIES_METHOD = 'api/v1/admin/integration-version/get-data-by-identities';
+
+    public const BASE_GET_DELETED_IDENTITIES_METHOD = 'api/v1/admin/integration-version/get-deleted-identities';
 }

@@ -43,6 +43,11 @@ class IntegrationVersionManager implements IntegrationVersionManagerInterface
         return $this->apiRequest->getDataByIdentities($source, $identities, $limit);
     }
 
+    public function getDeletedIdentities(string $source, array $identitiesForCheck): array
+    {
+        return $this->apiRequest->getDeletedIdentities($source, $identitiesForCheck);
+    }
+
     /**
      * @param string $source
      * @param LatestHashDataOutput $latestHashDataOutput

@@ -34,7 +34,8 @@ abstract class AbstractApiRequest implements ApiRequestInterface
         protected string $tokenApiMethod,
         protected string $latestHashApiMethod,
         protected string $identitiesApiMethod,
-        protected string $dataByIdentitiesMethod
+        protected string $dataByIdentitiesMethod,
+        protected string $deletedIdentitiesMethod
     ){}
 
     /**
@@ -64,6 +65,27 @@ abstract class AbstractApiRequest implements ApiRequestInterface
             if(!($data['identities'] ?? false)) break;
             yield $data;
         }
+    }
+
+    /**
+     * @param string $source
+     * @param array $identitiesForCheck
+     * @return array
+     * @throws ApiTokenNotDefined
+     * @throws ApiUrlNotDefined
+     */
+    public function getDeletedIdentities(string $source, array $identitiesForCheck): array
+    {
+        $data = $this->_request(
+            'deleted_identities',
+            [
+                'source' => $source,
+                'identities_for_check' => $identitiesForCheck
+            ],
+            $this->deletedIdentitiesMethod
+        );
+
+        return $data['identities_for_delete'] ?? [];
     }
 
     /**

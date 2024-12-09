@@ -84,61 +84,29 @@ public function __construct(
 
 ```
 
+#### Get Deleted Identities
+
+
 ```php 
-Vendor\ApiAppIntegrationVersion\Service\RunImports:
-
-<?php
-
-declare(strict_types=1);
-
-namespace Vendor\ApiAppIntegrationVersion\Service;
-
-use IntegrationHelper\IntegrationVersion\Repository\IntegrationVersionRepositoryInterface;
-use IntegrationHelper\IntegrationVersionMagentoClient\Service\IntegrationVersionManager;
-use IntegrationHelper\IntegrationVersion\Model\IntegrationVersionInterface;
-
-class RunImports
-{
-
-    public function __construct(
-        protected IntegrationVersionRepositoryInterface $integrationVersionRepository,
+public function __construct(
         protected IntegrationVersionManager $integrationVersionManager
     ){}
 
-    /**
-     * @param array $args
-     * @return void
-     */
-    public function execute()
-    {
-        /**
-         * @var $item IntegrationVersionInterface
-         */
-        foreach ($this->integrationVersionRepository->getItems() as $item) {
-            $source = $item->getSource();
-            $latestOutputData = $this->integrationVersionManager->getLatestHashData($source);
-            if($latestOutputData->isError()) {
-                $this->integrationVersionManager->saveLatestHash($source, $latestOutputData);
-                continue;
-            }
-
-            $identities = [];
-            foreach (
-                $this->integrationVersionManager
-                    ->getIdentities(
-                        $source,
-                        $item->getHash(),
-                        $item->getHashDateTime())
-                as $items) {
-               // $identities[] = //.... get identities 
-            }
-            
-            if($identities) {
-                //Request by Api and get Items by ids
-            }
-        }
-
+ public function deleteOldData() {
+    $page = 1;
+    $sourceCode = 'product_inventory';
+    
+    while(true) {
+        $currentIdentites = $this->getCurrentIdentites($page++); //[1,2,3,4,5,6,...]
+        if(!$currentIdentites) break;
+        
+        $deletedIdentities = $this->integrationVersionManager
+            ->getDeletedIdentities($sourceCode, $currentIdentites); //[2,4]
+        unsset($currentIdentites);
+        $this->deleteOldData($deletedIdentities);
     }
-}
+    
+ }
+  
 
 ```
