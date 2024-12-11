@@ -93,18 +93,24 @@ public function __construct(
     ){}
 
  public function deleteOldData() {
-    $page = 1;
-    $sourceCode = 'product_inventory';
-    
-    while(true) {
-        $currentIdentites = $this->getCurrentIdentites($page++); //[1,2,3,4,5,6,...]
-        if(!$currentIdentites) break;
-        
-        $deletedIdentities = $this->integrationVersionManager
-            ->getDeletedIdentities($sourceCode, $currentIdentites); //[2,4]
-        unsset($currentIdentites);
-        $this->deleteOldData($deletedIdentities);
-    }
+    $tableName = $integrationVersion->getTableName();
+        $connection = $this->resourceConnection->getConnection();
+        $page = 1;
+        while(true) {
+            $query = $connection->select()->from($tableName, $integrationVersion->getIdentityColumn())
+                ->limitPage($page++, 10000);
+            $identities = $connection->fetchCol($query);
+            if(!$identities) break;
+            $deletedIdentities = $this->integrationVersionManager
+                ->getDeletedIdentities(self::SOURCE_CODE, $identities);
+
+            if($deletedIdentities) {
+                $connection->deleteFromSelect(
+                    $connection->select()->from($tableName)->where($integrationVersion->getIdentityColumn() . ' IN (?)', $deletedIdentities)
+                );
+            }
+        }
+       
     
  }
   
