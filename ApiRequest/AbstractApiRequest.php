@@ -147,6 +147,7 @@ abstract class AbstractApiRequest implements ApiRequestInterface
                     'device_name' => 'PC'
                 ],
                 $this->tokenApiMethod,
+                'POST',
                 [
                     'Accept' => 'application/json',
                     'Content-Type' => 'multipart/form-data'
