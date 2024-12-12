@@ -146,7 +146,11 @@ abstract class AbstractApiRequest implements ApiRequestInterface
                     'password' => $apiSecretKey,
                     'device_name' => 'PC'
                 ],
-                $this->tokenApiMethod
+                $this->tokenApiMethod,
+                [
+                    'Accept' => 'application/json',
+                    'Content-Type' => 'multipart/form-data'
+                ]
             );
 
             $this->token = $data['token'] ?? '';
