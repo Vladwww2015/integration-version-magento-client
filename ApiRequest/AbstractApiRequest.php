@@ -10,6 +10,8 @@ use IntegrationHelper\IntegrationVersionMagentoClient\Model\ConfigProviderInterf
 abstract class AbstractApiRequest implements ApiRequestInterface
 {
 
+    protected string $token = '';
+
     /**
      * @var null
      */
@@ -203,21 +205,21 @@ abstract class AbstractApiRequest implements ApiRequestInterface
          ]
      ): Client
      {
-         $token = $this->configProvider->getApiToken();
+         $this->token = $this->token ?: $this->configProvider->getApiToken();
 
          if($type !== 'token') {
              $hasToken = false;
-             if($token) {
-                 $hasToken = $this->_checkToken($this->configProvider->getApiKey(), $this->configProvider->getApiSecretKey(), $token);
+             if($this->token) {
+                 $hasToken = $this->_checkToken($this->configProvider->getApiKey(), $this->configProvider->getApiSecretKey(), $this->token);
              }
              if(!$hasToken) {
-                 $token = $this->getToken($this->configProvider->getApiKey(), $this->configProvider->getApiSecretKey());
-                 if(!$token) {
+                 $this->token = $this->getToken($this->configProvider->getApiKey(), $this->configProvider->getApiSecretKey());
+                 if(!$this->token) {
                      throw new ApiTokenNotDefined();
                  }
              }
 
-             $headers['Authorization'] = 'Bearer ' . $token;
+             $headers['Authorization'] = 'Bearer ' . $this->token;
          }
 
          return new Client([
