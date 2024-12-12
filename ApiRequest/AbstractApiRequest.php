@@ -13,6 +13,14 @@ abstract class AbstractApiRequest implements ApiRequestInterface
     protected string $token = '';
 
     /**
+     * @var string[]
+     */
+    protected static $unauthorizationMessageParts = [
+        'Oops! Looks like you\'re not allowed to access this page. It seems you\'re missing the necessary credentials.',
+        '401 Unauthorized'
+    ];
+
+    /**
      * @var null
      */
     /**
@@ -205,14 +213,14 @@ abstract class AbstractApiRequest implements ApiRequestInterface
          ]
      ): Client
      {
-         $this->token = $this->token ?: $this->configProvider->getApiToken();
+         if(!$this->token) {
+            $token = $this->configProvider->getApiToken();
+            $isCorrectToken = $this->_checkToken($this->configProvider->getApiKey(), $this->configProvider->getApiSecretKey(), $this->token);
+         }
 
          if($type !== 'token') {
-             $hasToken = false;
-             if($this->token) {
-                 $hasToken = $this->_checkToken($this->configProvider->getApiKey(), $this->configProvider->getApiSecretKey(), $this->token);
-             }
-             if(!$hasToken) {
+             $this->token = $this->token ?: $token;
+             if(!$isCorrectToken) {
                  $this->token = $this->getToken($this->configProvider->getApiKey(), $this->configProvider->getApiSecretKey());
                  if(!$this->token) {
                      throw new ApiTokenNotDefined();
@@ -275,7 +283,8 @@ abstract class AbstractApiRequest implements ApiRequestInterface
          array $headers = [
              'Accept' => 'application/json',
              'Content-Type' => 'application/json'
-         ]
+         ],
+         $attempts = 0
      ): array
      {
         $client = $this->initRequest($type, $headers);
@@ -293,9 +302,23 @@ abstract class AbstractApiRequest implements ApiRequestInterface
              ],
              default => $params
          };
-         $response = $client->{$httpMethod}($fullApiUrl, $params);
-         $content = $response->getBody()->getContents();
-         return $content ? json_decode($content, true) : [];
+
+         try {
+             $response = $client->{$httpMethod}($fullApiUrl, $params);
+             $content = $response->getBody()->getContents();
+
+             return $content ? json_decode($content, true) : [];
+         }  catch (\Throwable $e) {
+             if($attempts++ <= 5) {
+                 foreach (static::$unauthorizationMessageParts as $part) {
+                     if(stristr($e->getMessage(), $part)) {
+                         sleep(10);
+                         return $this->_request($type, $params, $apiUrlMethod, $httpMethod, $headers, $attempts);
+                     }
+                 }
+             }
+             throw $e;
+         }
      }
 
     /**
