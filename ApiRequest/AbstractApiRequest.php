@@ -9,21 +9,16 @@ use IntegrationHelper\IntegrationVersionMagentoClient\Model\ConfigProviderInterf
 
 abstract class AbstractApiRequest implements ApiRequestInterface
 {
-    /**
-     * @var
-     */
-    private $clients = [];
 
     /**
      * @var null
      */
-    protected $token = null;
-
     /**
      * @param ConfigProviderInterface $configProvider
      * @param string $type
      * @param string $name
      * @param string $tokenApiMethod
+     * @param string $checkTokenApiMethod
      * @param string $latestHashApiMethod
      * @param string $identitiesApiMethod
      */
@@ -32,6 +27,7 @@ abstract class AbstractApiRequest implements ApiRequestInterface
         protected string $type,
         protected string $name,
         protected string $tokenApiMethod,
+        protected string $checkTokenApiMethod,
         protected string $latestHashApiMethod,
         protected string $identitiesApiMethod,
         protected string $dataByIdentitiesMethod,
@@ -136,28 +132,44 @@ abstract class AbstractApiRequest implements ApiRequestInterface
      * @param string $apiSecretKey
      * @return string
      */
+    protected function _checkToken(string $apiKey, string $apiSecretKey, string $token): bool
+    {
+        $data = $this->_request(
+            'check_token',
+            [
+                'email' => $apiKey,
+                'password' => $apiSecretKey,
+                'device_name' => 'PC'
+            ],
+            $this->getCheckTokenApiMethod(),
+            'POST',
+            [
+                'Accept' => 'application/json',
+                'Content-Type' => 'multipart/form-data'
+            ]
+        );
+
+        return is_array($data) ? (!!($data['id'] ?? false)) : false;
+    }
+
     public function getToken(string $apiKey = '', string $apiSecretKey = ''): string
     {
-        if($this->token === null) {
-            $data = $this->_request(
-                'token',
-                [
-                    'email' => $apiKey,
-                    'password' => $apiSecretKey,
-                    'device_name' => 'PC'
-                ],
-                $this->tokenApiMethod,
-                'POST',
-                [
-                    'Accept' => 'application/json',
-                    'Content-Type' => 'multipart/form-data'
-                ]
-            );
+        $data = $this->_request(
+            'token',
+            [
+                'email' => $apiKey,
+                'password' => $apiSecretKey,
+                'device_name' => 'PC'
+            ],
+            $this->getTokenApiMethod(),
+            'POST',
+            [
+                'Accept' => 'application/json',
+                'Content-Type' => 'multipart/form-data'
+            ]
+        );
 
-            $this->token = $data['token'] ?? '';
-        }
-
-        return $this->token;
+        return $data['token'] ?? '';
     }
 
     /**
@@ -191,38 +203,38 @@ abstract class AbstractApiRequest implements ApiRequestInterface
          ]
      ): Client
      {
-         $client = $this->clients[$type] ?? false;
-         if(!$client) {
-             $token = $this->configProvider->getApiToken();
-             $apiUrl = $this->configProvider->getApiUrl();
-             if(!$apiUrl) {
-                 throw new ApiUrlNotDefined();
-             }
+         $token = $this->configProvider->getApiToken();
 
-             if($type !== 'token') {
+         if($type !== 'token') {
+             $hasToken = false;
+             if($token) {
+                 $hasToken = $this->_checkToken($this->configProvider->getApiKey(), $this->configProvider->getApiSecretKey(), $token);
+             }
+             if(!$hasToken) {
+                 $token = $this->getToken($this->configProvider->getApiKey(), $this->configProvider->getApiSecretKey());
                  if(!$token) {
-                     $token = $this->getToken($this->configProvider->getApiKey(), $this->configProvider->getApiSecretKey());
-                     if(!$token) {
-                         throw new ApiTokenNotDefined();
-                     }
+                     throw new ApiTokenNotDefined();
                  }
-
-                 $headers['Authorization'] = 'Bearer ' . $token;
              }
 
-             $this->clients[$type] = new Client([
-                 'base_url' => $apiUrl,
-                 'headers' => $headers,
-                 'verify' => false //TODO TODO TODO add additional config
-             ]);
+             $headers['Authorization'] = 'Bearer ' . $token;
          }
 
-         return $this->clients[$type];
+         return new Client([
+             'base_url' => $this->configProvider->getApiUrl(),
+             'headers' => $headers,
+             'verify' => false //TODO TODO TODO add additional config
+         ]);
      }
 
     /**
      * @return string
      */
+    public function getCheckTokenApiMethod(): string
+    {
+        return $this->checkTokenApiMethod;
+    }
+
     public function getTokenApiMethod(): string
     {
         return $this->tokenApiMethod;
