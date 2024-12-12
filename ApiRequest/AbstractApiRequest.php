@@ -186,7 +186,8 @@ abstract class AbstractApiRequest implements ApiRequestInterface
          ]
      ): Client
      {
-         if($this->clients[$type] ?? true) {
+         $client = $this->clients[$type] ?? false;
+         if(!$client) {
              $token = $this->configProvider->getApiToken();
              $apiUrl = $this->configProvider->getApiUrl();
              if(!$apiUrl) {
