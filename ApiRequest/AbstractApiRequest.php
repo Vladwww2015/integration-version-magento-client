@@ -142,22 +142,24 @@ abstract class AbstractApiRequest implements ApiRequestInterface
      * @param string $apiSecretKey
      * @return string
      */
-    protected function _checkToken(string $apiKey, string $apiSecretKey, string $token): bool
+    protected function _checkToken(string $token): bool
     {
         $data = $this->_request(
             'check_token',
             [
-                'email' => $apiKey,
-                'password' => $apiSecretKey,
+                'token' => $token,
                 'device_name' => 'PC'
             ],
             $this->getCheckTokenApiMethod(),
-            'POST',
+            'GET',
             [
                 'Accept' => 'application/json',
-                'Content-Type' => 'multipart/form-data'
+                'Content-Type' => 'multipart/form-data',
+                'Authorization' => 'Bearer ' . $this->token,
             ]
         );
+
+        $data = $data['data'] ?? [];
 
         return is_array($data) ? (!!($data['id'] ?? false)) : false;
     }
@@ -185,18 +187,18 @@ abstract class AbstractApiRequest implements ApiRequestInterface
     /**
      * @return string
      */
-     public function getType(): string
-     {
-         return $this->type;
-     }
+    public function getType(): string
+    {
+        return $this->type;
+    }
 
     /**
      * @return string
      */
-     public function getName(): string
-     {
-         return $this->name;
-     }
+    public function getName(): string
+    {
+        return $this->name;
+    }
 
     /**
      * @param string $type
@@ -205,37 +207,38 @@ abstract class AbstractApiRequest implements ApiRequestInterface
      * @throws ApiTokenNotDefined
      * @throws ApiUrlNotDefined
      */
-     protected function initRequest(
-         string $type,
-         array $headers = [
-             'Accept' => 'application/json',
-             'Content-Type' => 'application/json'
-         ]
-     ): Client
-     {
-         if(!$this->token) {
+    protected function initRequest(
+        string $type,
+        array $headers = [
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json'
+        ]
+    ): Client
+    {
+        if(!in_array($type, ['token', 'check_token'])) {
             $token = $this->configProvider->getApiToken();
-            $isCorrectToken = $this->_checkToken($this->configProvider->getApiKey(), $this->configProvider->getApiSecretKey(), $this->token);
-         }
+            $isCorrectToken = false;
+            if($this->token || $token) {
+                $isCorrectToken = $this->_checkToken($this->token ?: $token);
+            }
 
-         if($type !== 'token') {
-             $this->token = $this->token ?: $token;
-             if(!$isCorrectToken) {
-                 $this->token = $this->getToken($this->configProvider->getApiKey(), $this->configProvider->getApiSecretKey());
-                 if(!$this->token) {
-                     throw new ApiTokenNotDefined();
-                 }
-             }
+            $this->token = $this->token ?: $token;
+            if(!$isCorrectToken || !$this->token) {
+                $this->token = $this->getToken($this->configProvider->getApiKey(), $this->configProvider->getApiSecretKey());
+                if(!$this->token) {
+                    throw new ApiTokenNotDefined();
+                }
+            }
 
-             $headers['Authorization'] = 'Bearer ' . $this->token;
-         }
+            $headers['Authorization'] = 'Bearer ' . $this->token;
+        }
 
-         return new Client([
-             'base_url' => $this->configProvider->getApiUrl(),
-             'headers' => $headers,
-             'verify' => false //TODO TODO TODO add additional config
-         ]);
-     }
+        return new Client([
+            'base_url' => $this->configProvider->getApiUrl(),
+            'headers' => $headers,
+            'verify' => false //TODO TODO TODO add additional config
+        ]);
+    }
 
     /**
      * @return string
@@ -275,51 +278,51 @@ abstract class AbstractApiRequest implements ApiRequestInterface
      * @throws ApiTokenNotDefined
      * @throws ApiUrlNotDefined
      */
-     protected function _request(
-         string $type,
-         array $params,
-         string $apiUrlMethod,
-         string $httpMethod = 'POST',
-         array $headers = [
-             'Accept' => 'application/json',
-             'Content-Type' => 'application/json'
-         ],
-         $attempts = 0
-     ): array
-     {
+    protected function _request(
+        string $type,
+        array $params,
+        string $apiUrlMethod,
+        string $httpMethod = 'POST',
+        array $headers = [
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json'
+        ],
+               $attempts = 0
+    ): array
+    {
         $client = $this->initRequest($type, $headers);
 
-         $fullApiUrl = $this->getTrimmedUrl($this->configProvider->getApiUrl(), $apiUrlMethod);
-         $httpMethod = strtoupper($httpMethod);
-         $params = match($httpMethod) {
-             'POST' => [
-                 'json' => $params
-             ],
-             'PUT' => [
-                 'json' => [
-                     'data' => $params
-                 ]
-             ],
-             default => $params
-         };
+        $fullApiUrl = $this->getTrimmedUrl($this->configProvider->getApiUrl(), $apiUrlMethod);
+        $httpMethod = strtoupper($httpMethod);
+        $params = match($httpMethod) {
+            'POST' => [
+                'json' => $params
+            ],
+            'PUT' => [
+                'json' => [
+                    'data' => $params
+                ]
+            ],
+            default => $params
+        };
 
-         try {
-             $response = $client->{$httpMethod}($fullApiUrl, $params);
-             $content = $response->getBody()->getContents();
+        try {
+            $response = $client->{$httpMethod}($fullApiUrl, $params);
+            $content = $response->getBody()->getContents();
 
-             return $content ? json_decode($content, true) : [];
-         }  catch (\Throwable $e) {
-             if($attempts++ <= 5) {
-                 foreach (static::$unauthorizationMessageParts as $part) {
-                     if(stristr($e->getMessage(), $part)) {
-                         sleep(10);
-                         return $this->_request($type, $params, $apiUrlMethod, $httpMethod, $headers, $attempts);
-                     }
-                 }
-             }
-             throw $e;
-         }
-     }
+            return $content ? json_decode($content, true) : [];
+        }  catch (\Throwable $e) {
+            if($attempts++ <= 5) {
+                foreach (static::$unauthorizationMessageParts as $part) {
+                    if(stristr($e->getMessage(), $part)) {
+                        sleep(10);
+                        return $this->_request($type, $params, $apiUrlMethod, $httpMethod, $headers, $attempts);
+                    }
+                }
+            }
+            throw $e;
+        }
+    }
 
     /**
      * @param string $apiUrl
