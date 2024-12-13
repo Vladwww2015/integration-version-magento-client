@@ -21,23 +21,24 @@ abstract class AbstractApiRequest implements ApiRequestInterface
     ];
 
     /**
-     * @var null
-     */
-    /**
+     * @param GetCachedTokenInterface $getCachedToken
+     * @param TokenParamInterfaceFactory $tokenParamFactory
      * @param ConfigProviderInterface $configProvider
      * @param string $type
      * @param string $name
      * @param string $tokenApiMethod
-     * @param string $checkTokenApiMethod
      * @param string $latestHashApiMethod
      * @param string $identitiesApiMethod
+     * @param string $dataByIdentitiesMethod
+     * @param string $deletedIdentitiesMethod
      */
     public function __construct(
+        protected GetCachedTokenInterface $getCachedToken,
+        protected TokenParamInterfaceFactory $tokenParamFactory,
         protected ConfigProviderInterface $configProvider,
         protected string $type,
         protected string $name,
         protected string $tokenApiMethod,
-        protected string $checkTokenApiMethod,
         protected string $latestHashApiMethod,
         protected string $identitiesApiMethod,
         protected string $dataByIdentitiesMethod,
@@ -141,29 +142,9 @@ abstract class AbstractApiRequest implements ApiRequestInterface
      * @param string $apiKey
      * @param string $apiSecretKey
      * @return string
+     * @throws ApiTokenNotDefined
+     * @throws ApiUrlNotDefined
      */
-    protected function _checkToken(string $token): bool
-    {
-        $data = $this->_request(
-            'check_token',
-            [
-                'token' => $token,
-                'device_name' => 'PC'
-            ],
-            $this->getCheckTokenApiMethod(),
-            'GET',
-            [
-                'Accept' => 'application/json',
-                'Content-Type' => 'multipart/form-data',
-                'Authorization' => 'Bearer ' . $this->token,
-            ]
-        );
-
-        $data = $data['data'] ?? [];
-
-        return is_array($data) ? (!!($data['id'] ?? false)) : false;
-    }
-
     public function getToken(string $apiKey = '', string $apiSecretKey = ''): string
     {
         $data = $this->_request(
@@ -198,54 +179,6 @@ abstract class AbstractApiRequest implements ApiRequestInterface
     public function getName(): string
     {
         return $this->name;
-    }
-
-    /**
-     * @param string $type
-     * @param array $headers
-     * @return Client
-     * @throws ApiTokenNotDefined
-     * @throws ApiUrlNotDefined
-     */
-    protected function initRequest(
-        string $type,
-        array $headers = [
-            'Accept' => 'application/json',
-            'Content-Type' => 'application/json'
-        ]
-    ): Client
-    {
-        if(!in_array($type, ['token', 'check_token'])) {
-            $token = $this->configProvider->getApiToken();
-            $isCorrectToken = false;
-            if($this->token || $token) {
-                $isCorrectToken = $this->_checkToken($this->token ?: $token);
-            }
-
-            $this->token = $this->token ?: $token;
-            if(!$isCorrectToken || !$this->token) {
-                $this->token = $this->getToken($this->configProvider->getApiKey(), $this->configProvider->getApiSecretKey());
-                if(!$this->token) {
-                    throw new ApiTokenNotDefined();
-                }
-            }
-
-            $headers['Authorization'] = 'Bearer ' . $this->token;
-        }
-
-        return new Client([
-            'base_url' => $this->configProvider->getApiUrl(),
-            'headers' => $headers,
-            'verify' => false //TODO TODO TODO add additional config
-        ]);
-    }
-
-    /**
-     * @return string
-     */
-    public function getCheckTokenApiMethod(): string
-    {
-        return $this->checkTokenApiMethod;
     }
 
     public function getTokenApiMethod(): string
@@ -292,7 +225,7 @@ abstract class AbstractApiRequest implements ApiRequestInterface
     {
         $client = $this->initRequest($type, $headers);
 
-        $fullApiUrl = $this->getTrimmedUrl($this->configProvider->getApiUrl(), $apiUrlMethod);
+        $fullApiUrl = $this->_getTrimmedUrl($this->configProvider->getApiUrl(), $apiUrlMethod);
         $httpMethod = strtoupper($httpMethod);
         $params = match($httpMethod) {
             'POST' => [
@@ -314,8 +247,12 @@ abstract class AbstractApiRequest implements ApiRequestInterface
         }  catch (\Throwable $e) {
             if($attempts++ <= 5) {
                 foreach (static::$unauthorizationMessageParts as $part) {
+                    $prevToken = $this->getCachedToken->getToken($this->_getTokenParam());
                     if(stristr($e->getMessage(), $part)) {
                         sleep(10);
+                        $token = $this->getCachedToken->getToken($this->_getTokenParam());
+                        if($prevToken === $token) $this->getCachedToken->resetToken($this->_getTokenParam());
+
                         return $this->_request($type, $params, $apiUrlMethod, $httpMethod, $headers, $attempts);
                     }
                 }
@@ -324,12 +261,66 @@ abstract class AbstractApiRequest implements ApiRequestInterface
         }
     }
 
+    protected function _getTokenParam(): TokenParamInterface
+    {
+        $apiUrl = $this->configProvider->getApiUrl();
+        $apiKey = $this->configProvider->getApiKey();
+        $apiSecretKey = $this->configProvider->getApiSecretKey();
+        return $this->tokenParamFactory->create([
+            'apiUrl' => $apiUrl,
+            'apiKey' => $apiKey,
+            'apiSecretKey' => $apiSecretKey,
+        ]);
+    }
+
+    /**
+     * @param string $type
+     * @param array $headers
+     * @return Client
+     * @throws ApiTokenNotDefined
+     * @throws ApiUrlNotDefined
+     */
+    protected function initRequest(
+        string $type,
+        array $headers = [
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json'
+        ]
+    ): Client
+    {
+        $apiUrl = $this->configProvider->getApiUrl();
+        if($type !== 'token') {
+            $apiKey = $this->configProvider->getApiKey();
+            $apiSecretKey = $this->configProvider->getApiSecretKey();
+            $tokenParam = $this->_getTokenParam();
+            $token = $this->getCachedToken->getToken($tokenParam);
+//            $token = $this->getCachedToken->getToken($tokenParam) ?: $this->configProvider->getApiToken();
+
+            $this->token = $this->token ?: $token;
+            if(!$this->token) {
+                $this->token = $this->getToken($apiKey, $apiSecretKey);
+                $this->getCachedToken->setToken($tokenParam, $this->token);
+                if(!$this->token) {
+                    throw new ApiTokenNotDefined();
+                }
+            }
+
+            $headers['Authorization'] = 'Bearer ' . $this->token;
+        }
+
+        return new Client([
+            'base_url' => $apiUrl,
+            'headers' => $headers,
+            'verify' => false //TODO TODO TODO add additional config
+        ]);
+    }
+
     /**
      * @param string $apiUrl
      * @param string $resourcePath
      * @return string
      */
-    private function getTrimmedUrl(string $apiUrl, string $resourcePath)
+    private function _getTrimmedUrl(string $apiUrl, string $resourcePath)
     {
         $apiBaseUrl = rtrim($apiUrl, '/');
 

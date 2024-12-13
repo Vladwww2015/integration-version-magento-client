@@ -57,9 +57,12 @@ public function __construct(
                  type="IntegrationHelper\IntegrationVersionMagentoClient\ApiRequest\BaseApiRequest">
         <arguments>
             <argument name="configProvider" xsi:type="object">Vendor\ApiAppIntegrationVersion\Model\ConfigProvider</argument>
-            <argument name="tokenApiMethod" xsi:type="const">\IntegrationHelper\IntegrationVersionMagentoClient\Api\ConstraintsInterface::LOGIN_AND_TOKEN_METHOD</argument>
+            <argument name="getCachedToken" xsi:type="object">IntegrationHelper\IntegrationVersionMagentoClient\ApiRequest\GetCachedToken</argument>
+            <argument name="tokenApiMethod" xsi:type="const">\IntegrationHelper\IntegrationVersionMagentoClient\Api\ConstraintsInterface::BASE_TOKEN_METHOD</argument>
             <argument name="identitiesApiMethod" xsi:type="const">\IntegrationHelper\IntegrationVersionMagentoClient\Api\ConstraintsInterface::BASE_GET_IDENTITIES_METHOD</argument>
             <argument name="latestHashApiMethod" xsi:type="const">\IntegrationHelper\IntegrationVersionMagentoClient\Api\ConstraintsInterface::BASE_GET_LATEST_HASH_METHOD</argument>
+            <argument name="dataByIdentitiesMethod" xsi:type="const">\IntegrationHelper\IntegrationVersionMagentoClient\Api\ConstraintsInterface::BASE_GET_DATA_BY_IDENTITIES_METHOD</argument>
+            <argument name="deletedIdentitiesMethod" xsi:type="const">\IntegrationHelper\IntegrationVersionMagentoClient\Api\ConstraintsInterface::BASE_GET_DELETED_IDENTITIES_METHOD</argument>
             <argument name="type" xsi:type="string">engine_api_request</argument>
             <argument name="name" xsi:type="string">Engine Api Request</argument>
         </arguments>
