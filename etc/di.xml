@@ -4,6 +4,10 @@
     <preference for="IntegrationHelper\IntegrationVersionMagentoClient\ApiRequest\TokenParamInterface"
                 type="IntegrationHelper\IntegrationVersionMagentoClient\ApiRequest\TokenParam" />
 
+    <preference for="IntegrationHelper\IntegrationVersionMagentoClient\Api\DeleteOldDataRequestInterface"
+                type="IntegrationHelper\IntegrationVersionMagentoClient\Model\DeleteOldDataRequest"/>
+
+
     <virtualType name="IntegrationHelper\IntegrationVersionMagentoClient\ApiRequest\DefaultApiRequest"
                  type="IntegrationHelper\IntegrationVersionMagentoClient\ApiRequest\BaseApiRequest">
         <arguments>

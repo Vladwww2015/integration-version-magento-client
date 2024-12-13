@@ -4,42 +4,47 @@
 ### Default: 
 #### Add Configuration in System Admin Config (Api Url, Api Key, Api Secret Key or Token)
 ```php
-use IntegrationHelper\IntegrationVersion\Repository\IntegrationVersionRepositoryInterface;
+use IntegrationHelper\IntegrationVersionMagentoClient\Import\AbstractImportClient;
 
-public function __construct(
-        protected IntegrationVersionRepositoryInterface $integrationVersionRepository,
-        protected IntegrationVersionManager $integrationVersionManager
-    ){}
-
- public function importsRun() {
- foreach ($this->integrationVersionRepository->getItems() as $item) {
-            $source = $item->getSource();
-            $latestOutputData = $this->integrationVersionManager->getLatestHashData($source);
-            if($latestOutputData->isError()) {
-                $this->integrationVersionManager->saveLatestHash($source, $latestOutputData);
-                continue;
-            }
-
-            $identities = [];
-            foreach (
-                $this->integrationVersionManager
-                    ->getIdentities(
-                        $source,
-                        $item->getHash(),
-                        $item->getHashDateTime())
-                as $items) {
-                $identities[] = //.... get identities 
-            }
-            
-            //Get Yours Api request from Mapped $source-$request
-            
-            if($identities) {
-                $request->importByIdentities($identities);
-                //Request by Api and get Items by ids
-            }
+class ImportProcess extends AbstractImportClient
+{
+    public function import()
+    {
+        foreach ($this->itemsData() as $itemsData) {
+            //... prepare $itemsData to import
+            //..save $itemsData
         }
- }
-  
+    }
+
+    public function getSourceCode(): string
+    {
+        return self::SOURCE_CODE;
+    }
+
+    public function callbackAfterClearOldData(): void
+    {
+        // TODO: Implement callbackAfterClearOldData() method.
+    }
+
+    public function callbackBeforeSaveLatestHash(): void
+    {
+    }
+
+    public function callbackAfterReturnData(): void
+    {
+        // TODO: Implement callbackAfterReturnData() method.
+    }
+
+    public function callbackBeforeGetItem(): void
+    {
+        // TODO: Implement callbackBeforeGetItem() method.
+    }
+
+    public function callbackBeforeStart(): void
+    {
+    }
+}
+
 
 ```
 
