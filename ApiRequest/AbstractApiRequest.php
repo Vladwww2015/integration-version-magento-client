@@ -3,6 +3,7 @@
 namespace IntegrationHelper\IntegrationVersionMagentoClient\ApiRequest;
 
 use GuzzleHttp\Client;
+use IntegrationHelper\IntegrationVersionMagentoClient\Api\ConstraintsInterface;
 use IntegrationHelper\IntegrationVersionMagentoClient\Exceptions\ApiTokenNotDefined;
 use IntegrationHelper\IntegrationVersionMagentoClient\Exceptions\ApiUrlNotDefined;
 use IntegrationHelper\IntegrationVersionMagentoClient\Model\ConfigProviderInterface;
@@ -38,11 +39,11 @@ abstract class AbstractApiRequest implements ApiRequestInterface
         protected ConfigProviderInterface $configProvider,
         protected string $type,
         protected string $name,
-        protected string $tokenApiMethod,
-        protected string $latestHashApiMethod,
-        protected string $identitiesApiMethod,
-        protected string $dataByIdentitiesMethod,
-        protected string $deletedIdentitiesMethod
+        protected string $tokenApiMethod = ConstraintsInterface::BASE_TOKEN_METHOD,
+        protected string $latestHashApiMethod = ConstraintsInterface::BASE_GET_LATEST_HASH_METHOD,
+        protected string $identitiesApiMethod = ConstraintsInterface::BASE_GET_IDENTITIES_METHOD,
+        protected string $dataByIdentitiesMethod = ConstraintsInterface::BASE_GET_DATA_BY_IDENTITIES_METHOD,
+        protected string $deletedIdentitiesMethod = ConstraintsInterface::BASE_GET_DELETED_IDENTITIES_METHOD
     ){}
 
     /**
