@@ -254,6 +254,8 @@ abstract class AbstractApiRequest implements ApiRequestInterface
                         $token = $this->getCachedToken->getToken($this->_getTokenParam());
                         if($prevToken === $token) $this->getCachedToken->resetToken($this->_getTokenParam());
 
+                        $this->resetToken();
+
                         return $this->_request($type, $params, $apiUrlMethod, $httpMethod, $headers, $attempts);
                     }
                 }
@@ -330,5 +332,10 @@ abstract class AbstractApiRequest implements ApiRequestInterface
         }
 
         return $apiBaseUrl . '/' . $resourcePath;
+    }
+
+    private function resetToken(): void
+    {
+        $this->token = '';
     }
 }
