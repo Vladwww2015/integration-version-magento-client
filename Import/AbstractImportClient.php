@@ -47,7 +47,7 @@ abstract class AbstractImportClient implements ImportClientInterface
                     foreach (array_chunk($identityData['identities'], 10000) as $chunk) {
                         $itemsData = $this->integrationVersionManager->getDataByIdentities(
                             $this->getSourceCode(),
-                            array_column($identityData['identities'], 'identity_value')
+                            array_column($chunk, 'identity_value')
                         );
 
                         $isError = $itemsData['is_error'] ?? false;
