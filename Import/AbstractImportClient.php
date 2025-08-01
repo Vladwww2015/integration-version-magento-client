@@ -38,22 +38,25 @@ abstract class AbstractImportClient implements ImportClientInterface
 
                 $this->callbackBeforeStart();
 
+                $break = false;
                 foreach ($dataGenerator as $identityData) {
                     if(!array_key_exists('identities', $identityData) || !count($identityData['identities'])) break;
 
                     $this->callbackBeforeGetItem();
 
-                    $itemsData = $this->integrationVersionManager->getDataByIdentities(
-                        $this->getSourceCode(),
-                        array_column($identityData['identities'], 'identity_value')
-                    );
+                    foreach (array_chunk($identityData['identities'], 10000) as $chunk) {
+                        $itemsData = $this->integrationVersionManager->getDataByIdentities(
+                            $this->getSourceCode(),
+                            array_column($identityData['identities'], 'identity_value')
+                        );
 
-                    $isError = $itemsData['is_error'] ?? false;
-                    if($isError) throw new \Exception($itemsData['message']);
+                        $isError = $itemsData['is_error'] ?? false;
+                        if($isError) throw new \Exception($itemsData['message']);
 
-                    if(!array_key_exists('data', $itemsData) || !count($itemsData['data'])) break;
+                        if(!array_key_exists('data', $itemsData) || !count($itemsData['data'])) continue;
 
-                    yield $itemsData['data'] ?? [];
+                        yield $itemsData['data'] ?? [];
+                    }
 
                     $this->callbackAfterReturnData();
                 }
