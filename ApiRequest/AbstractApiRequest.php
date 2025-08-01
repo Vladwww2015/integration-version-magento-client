@@ -43,7 +43,8 @@ abstract class AbstractApiRequest implements ApiRequestInterface
         protected string $latestHashApiMethod = ConstraintsInterface::BASE_GET_LATEST_HASH_METHOD,
         protected string $identitiesApiMethod = ConstraintsInterface::BASE_GET_IDENTITIES_METHOD,
         protected string $dataByIdentitiesMethod = ConstraintsInterface::BASE_GET_DATA_BY_IDENTITIES_METHOD,
-        protected string $deletedIdentitiesMethod = ConstraintsInterface::BASE_GET_DELETED_IDENTITIES_METHOD
+        protected string $deletedIdentitiesMethod = ConstraintsInterface::BASE_GET_DELETED_IDENTITIES_METHOD,
+        protected int $identitiesRequestLimit = 10000
     ){}
 
     /**
@@ -65,7 +66,7 @@ abstract class AbstractApiRequest implements ApiRequestInterface
                     'old_hash' => $currentHash ?: 'empty',
                     'hash_date_time' => $hashDateTime,
                     'page' => $page++,
-                    'limit' => 10000
+                    'limit' => $this->identitiesRequestLimit,
                 ],
                 $this->identitiesApiMethod
             );
