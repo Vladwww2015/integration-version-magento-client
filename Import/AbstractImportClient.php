@@ -24,6 +24,7 @@ abstract class AbstractImportClient implements ImportClientInterface
         protected string $queueClearOldDataKey = 'import.clean.old.data',
     ){}
 
+
     /**
      * @return iterable
      * @throws \Exception
@@ -44,7 +45,7 @@ abstract class AbstractImportClient implements ImportClientInterface
 
                     $this->callbackBeforeGetItem();
 
-                    foreach (array_chunk($identityData['identities'], 10000) as $chunk) {
+                    foreach (array_chunk($identityData['identities'], $this->requestLimit()) as $chunk) {
                         $itemsData = $this->integrationVersionManager->getDataByIdentities(
                             $this->getSourceCode(),
                             array_column($chunk, 'identity_value')
@@ -69,6 +70,12 @@ abstract class AbstractImportClient implements ImportClientInterface
             }
         }
     }
+
+    protected function requestLimit(): int
+    {
+        return 10000;
+    }
+
 
     /**
      * @return void
