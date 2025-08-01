@@ -46,10 +46,19 @@ abstract class AbstractImportClient implements ImportClientInterface
                     $this->callbackBeforeGetItem();
 
                     foreach (array_chunk($identityData['identities'], $this->requestLimit()) as $chunk) {
-                        $itemsData = $this->integrationVersionManager->getDataByIdentities(
-                            $this->getSourceCode(),
-                            array_column($chunk, 'identity_value')
-                        );
+                        $chunkData = array_column($chunk, 'identity_value');
+
+                        if(!$this->getSourceCode()) throw new \Exception('Source Code is Empty');
+                        if(!$chunkData) throw new \Exception('Chunk Data is Empty');
+
+                        try {
+                            $itemsData = $this->integrationVersionManager->getDataByIdentities(
+                                $this->getSourceCode(),
+                                $chunkData
+                            );
+                        } catch (\Exception $e) {
+                            throw new \Exception($e->getMessage());
+                        }
 
                         $isError = $itemsData['is_error'] ?? false;
                         if($isError) throw new \Exception($itemsData['message']);
