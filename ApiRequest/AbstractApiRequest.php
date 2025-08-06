@@ -52,6 +52,7 @@ abstract class AbstractApiRequest implements ApiRequestInterface
         protected string $tokenApiMethod = ConstraintsInterface::BASE_TOKEN_METHOD,
         protected string $latestHashApiMethod = ConstraintsInterface::BASE_GET_LATEST_HASH_METHOD,
         protected string $identitiesApiMethod = ConstraintsInterface::BASE_GET_IDENTITIES_METHOD,
+        protected string $identitiesTotalApiMethod = ConstraintsInterface::BASE_GET_IDENTITIES_TOTAL_METHOD,
         protected string $dataByIdentitiesMethod = ConstraintsInterface::BASE_GET_DATA_BY_IDENTITIES_METHOD,
         protected string $deletedIdentitiesMethod = ConstraintsInterface::BASE_GET_DELETED_IDENTITIES_METHOD,
         protected int $identitiesRequestLimit = 10000
@@ -88,6 +89,27 @@ abstract class AbstractApiRequest implements ApiRequestInterface
             if(!($data['identities'] ?? false)) break;
             yield $data;
         }
+    }
+
+    /**
+     * @param string $source
+     * @param string $currentHash
+     * @param string $hashDateTime
+     * @return array
+     * @throws ApiTokenNotDefined
+     * @throws ApiUrlNotDefined
+     */
+    public function getIdentitiesTotal(string $source, string $currentHash, string $hashDateTime): array
+    {
+        return $this->_request(
+            'identities_total',
+            [
+                'source' => $source,
+                'old_hash' => $currentHash ?: 'empty',
+                'hash_date_time' => $hashDateTime
+            ],
+            $this->identitiesTotalApiMethod
+        );
     }
 
     /**

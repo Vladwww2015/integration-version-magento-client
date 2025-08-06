@@ -35,6 +35,21 @@ class IntegrationVersionManager implements IntegrationVersionManagerInterface
 
     /**
      * @param string $source
+     * @param string $currentHash
+     * @param string $dateTime
+     * @return array
+     */
+    public function getIdentitiesTotal(
+        string $source,
+        string $currentHash,
+        string $dateTime
+    ): array
+    {
+        return $this->apiRequest->getIdentitiesTotal($source, $currentHash, $dateTime);
+    }
+
+    /**
+     * @param string $source
      * @return LatestHashDataOutput
      */
     public function getLatestHashData(string $source): LatestHashDataOutput

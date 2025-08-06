@@ -22,6 +22,14 @@ interface ApiRequestInterface
     public function getIdentities(string $source, string $currentHash, string $hashDateTime): iterable;
 
     /**
+     * @param string $source
+     * @param string $currentHash
+     * @param string $hashDateTime
+     * @return array
+     */
+    public function getIdentitiesTotal(string $source, string $currentHash, string $hashDateTime): array;
+
+    /**
      * @param int $pageFrom
      * @param int $pageTo
      * @return void

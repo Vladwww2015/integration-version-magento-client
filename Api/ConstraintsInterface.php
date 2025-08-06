@@ -14,6 +14,9 @@ interface ConstraintsInterface
     public const CHECK_API_METHOD = 'api/v1/admin/get';
 
     public const BASE_GET_IDENTITIES_METHOD = 'api/v1/admin/integration-version/get-identities';
+
+    public const BASE_GET_IDENTITIES_TOTAL_METHOD = 'api/v1/admin/integration-version/get-identities-total';
+
     public const BASE_GET_LATEST_HASH_METHOD = 'api/v1/admin/integration-version/get-latest-hash';
 
     public const BASE_GET_DATA_BY_IDENTITIES_METHOD = 'api/v1/admin/integration-version/get-data-by-identities';
