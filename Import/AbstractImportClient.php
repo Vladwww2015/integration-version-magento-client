@@ -39,7 +39,6 @@ abstract class AbstractImportClient implements ImportClientInterface
 
                 $this->callbackBeforeStart();
 
-                $break = false;
                 foreach ($dataGenerator as $identityData) {
                     if(!array_key_exists('identities', $identityData) || !count($identityData['identities'])) break;
 
