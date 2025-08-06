@@ -73,7 +73,7 @@ abstract class AbstractApiRequest implements ApiRequestInterface
         if(!is_null($this->pageFrom)) $page = $this->pageFrom;
 
         while(true) {
-            if(!is_null($this->pageTo) && $page > $this->pageFrom) break;
+            if(!is_null($this->pageTo) && $page > $this->pageTo) break;
             $data = $this->_request(
                 'identities',
                 [
