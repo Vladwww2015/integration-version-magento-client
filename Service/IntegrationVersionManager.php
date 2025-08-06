@@ -22,10 +22,14 @@ class IntegrationVersionManager implements IntegrationVersionManagerInterface
      * @param string $source
      * @param string $currentHash
      * @param string $dateTime
+     * @param int|null $pageFrom
+     * @param int|null $pageTo
      * @return iterable
      */
-    public function getIdentities(string $source, string $currentHash, string $dateTime): iterable
+    public function getIdentities(string $source, string $currentHash, string $dateTime, int $pageFrom = null, int $pageTo = null): iterable
     {
+        if(!is_null($pageFrom) && !is_null($pageTo)) $this->apiRequest->setIdentitiesRangePage($pageFrom, $pageTo);
+
         return $this->apiRequest->getIdentities($source, $currentHash, $dateTime);
     }
 

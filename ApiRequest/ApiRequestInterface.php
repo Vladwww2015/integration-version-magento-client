@@ -22,6 +22,18 @@ interface ApiRequestInterface
     public function getIdentities(string $source, string $currentHash, string $hashDateTime): iterable;
 
     /**
+     * @param int $pageFrom
+     * @param int $pageTo
+     * @return void
+     */
+    public function setIdentitiesRangePage(int $pageFrom, int $pageTo): void;
+
+    /**
+     * @return void
+     */
+    public function resetIdentitiesRangePage(): void;
+
+    /**
      * @param string $source
      * @param array $identities
      * @param int $limit

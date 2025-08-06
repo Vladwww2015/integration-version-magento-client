@@ -80,6 +80,20 @@ abstract class AbstractImportClient implements ImportClientInterface
         }
     }
 
+    public function getPageFrom(): int|null
+    {
+        return null;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getPageTo(): int|null
+    {
+        return null;
+    }
+
+
     protected function requestLimit(): int
     {
         return 10000;

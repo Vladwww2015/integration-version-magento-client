@@ -6,7 +6,7 @@ use IntegrationHelper\IntegrationVersionMagentoClient\ApiRequest\LatestHashDataO
 
 interface IntegrationVersionManagerInterface
 {
-    public function getIdentities(string $source, string $currentHash, string $dateTime): iterable;
+    public function getIdentities(string $source, string $currentHash, string $dateTime, int $pageFrom = null, int $pageTo = null): iterable;
 
     /**
      * @param string $source

@@ -14,6 +14,16 @@ abstract class AbstractApiRequest implements ApiRequestInterface
     protected string $token = '';
 
     /**
+     * @var null
+     */
+    protected $pageFrom = null;
+
+    /**
+     * @var null
+     */
+    protected $pageTo = null;
+
+    /**
      * @var string[]
      */
     protected static $unauthorizationMessageParts = [
@@ -58,7 +68,11 @@ abstract class AbstractApiRequest implements ApiRequestInterface
     public function getIdentities(string $source, string $currentHash, string $hashDateTime): iterable
     {
         $page = 1;
+
+        if(!is_null($this->pageFrom)) $page = $this->pageFrom;
+
         while(true) {
+            if(!is_null($this->pageTo) && $page > $this->pageFrom) break;
             $data = $this->_request(
                 'identities',
                 [
@@ -202,6 +216,26 @@ abstract class AbstractApiRequest implements ApiRequestInterface
     public function getIdentitiesApiMethod(): string
     {
         return $this->identitiesApiMethod;
+    }
+
+    /**
+     * @param int $pageFrom
+     * @param int $pageTo
+     * @return void
+     */
+    public function setIdentitiesRangePage(int $pageFrom, int $pageTo): void
+    {
+        $this->pageFrom = $pageFrom;
+        $this->pageTo = $pageTo;
+    }
+
+    /**
+     * @return void
+     */
+    public function resetIdentitiesRangePage(): void
+    {
+        $this->pageFrom = null;
+        $this->pageTo = null;
     }
 
     /**

@@ -7,6 +7,16 @@ use IntegrationHelper\IntegrationVersionMagentoClient\Service\IntegrationVersion
 interface ImportClientInterface
 {
     /**
+     * @return int|null
+     */
+    public function getPageFrom(): int|null;
+
+    /**
+     * @return int|null
+     */
+    public function getPageTo(): int|null;
+
+    /**
      * @return string
      */
     public function getSourceCode(): string;
