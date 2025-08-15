@@ -271,7 +271,7 @@ abstract class AbstractApiRequest implements ApiRequestInterface
      */
     protected function _request(
         string $type,
-        array $params,
+        array $payload,
         string $apiUrlMethod,
         string $httpMethod = 'POST',
         array $headers = [
@@ -285,21 +285,22 @@ abstract class AbstractApiRequest implements ApiRequestInterface
 
         $fullApiUrl = $this->_getTrimmedUrl($this->configProvider->getApiUrl(), $apiUrlMethod);
         $httpMethod = strtoupper($httpMethod);
-        $params = match($httpMethod) {
+        $options = match($httpMethod) {
             'POST' => [
-                'json' => $params
+                'json' => $payload
             ],
             'PUT' => [
                 'json' => [
-                    'data' => $params
+                    'data' => $payload
                 ]
             ],
-            default => $params
+            'GET'  => ['query' => $payload],
+            default => $payload
         };
 
         try {
-            $response = $client->{$httpMethod}($fullApiUrl, $params);
-            $content = $response->getBody()->getContents();
+            $response = $client->request($httpMethod, $fullApiUrl, $options);
+            $content  = (string) $response->getBody();
 
             return $content ? json_decode($content, true) : [];
         }  catch (\Throwable $e) {
@@ -313,7 +314,7 @@ abstract class AbstractApiRequest implements ApiRequestInterface
 
                         $this->resetToken();
 
-                        return $this->_request($type, $params, $apiUrlMethod, $httpMethod, $headers, $attempts);
+                        return $this->_request($type, $payload, $apiUrlMethod, $httpMethod, $headers, $attempts);
                     }
                 }
             }
